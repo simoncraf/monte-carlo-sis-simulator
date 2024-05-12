@@ -1,8 +1,9 @@
 import random
+from networkx import Graph
 import numpy as np
 from loguru import logger
 
-def monte_carlo_sis(graph, beta, mu, rho_initial, num_steps, num_repeats, transient):
+def monte_carlo_sis(graph: Graph, beta: float, mu: float, rho_initial: float, num_steps: int, num_repeats: int, transient: int) -> list[float]:
     """Simulate the SIS model using Monte Carlo averaging, ignoring the transient period.
 
     Args:
@@ -20,10 +21,9 @@ def monte_carlo_sis(graph, beta, mu, rho_initial, num_steps, num_repeats, transi
     results = np.zeros(num_steps - transient)
     nodes = list(graph.nodes())
 
-    for repeat in range(num_repeats):
+    for _ in range(num_repeats):
         infected = set(random.sample(nodes, max(1,int(rho_initial * len(nodes)))))
         susceptible = set(nodes) - infected
-        #logger.info(f"Repeat: {repeat}. Infected: {len(infected)}  Susceptible: {len(susceptible)}")
         fraction_infected = []
 
         for _ in range(num_steps):
@@ -49,9 +49,8 @@ def monte_carlo_sis(graph, beta, mu, rho_initial, num_steps, num_repeats, transi
 
             fraction_infected.append(len(infected) / len(nodes))
 
-        #logger.info(f"Fraction infected: {fraction_infected}")
         results += np.array(fraction_infected[transient:])
-        #logger.info(f"Fraction infected transient: {results}")
+        
     if not num_repeats:
         logger.warning("No repetitions were run or all were zero.")
     elif not np.any(results):
